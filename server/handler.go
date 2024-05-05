@@ -18,5 +18,9 @@ func (s *Server) HandleConn(conn net.Conn) {
 		msg := buf[:n]
 		println("msg: ", string(msg))
 		fmt.Fprintf(conn, "Thanks, received %s", string(msg))
+		s.Msgchan <- Message{
+			Source:  conn.RemoteAddr().String(),
+			Payload: msg,
+		}
 	}
 }
