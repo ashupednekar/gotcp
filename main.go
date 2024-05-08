@@ -10,7 +10,7 @@ func main() {
 	s := server.NewServer(":3001")
 
 	go func() {
-		for message := range s.Msgchan {
+		for message := range s.Chans.Msgchan {
 			fmt.Printf("received message: %s from %s", string(message.Payload), message.Source)
 		}
 	}()

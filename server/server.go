@@ -5,11 +5,15 @@ import (
 	"net"
 )
 
+type Channels struct {
+	Msgchan  chan Message
+	quitchan chan struct{}
+}
+
 type Server struct {
 	ListenAddr string
 	ln         net.Listener
-	Msgchan    chan Message
-	quitchan   chan struct{}
+	Chans      Channels
 }
 
 type Message struct {
@@ -20,8 +24,10 @@ type Message struct {
 func NewServer(addr string) *Server {
 	return &Server{
 		ListenAddr: addr,
-		Msgchan:    make(chan Message, 10),
-		quitchan:   make(chan struct{}),
+		Chans: Channels{
+			Msgchan:  make(chan Message, 10),
+			quitchan: make(chan struct{}),
+		},
 	}
 }
 
@@ -33,8 +39,8 @@ func (s *Server) Start() error {
 	s.ln = ln
 	s.AcceptLoop()
 
-	<-s.quitchan
-	close(s.Msgchan)
+	<-s.Chans.quitchan
+	close(s.Chans.Msgchan)
 
 	return nil
 }
